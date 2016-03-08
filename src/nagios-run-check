@@ -1,0 +1,145 @@
+#!/usr/bin/perl
+#
+# Nagios check runner - runs command for given host and service pair
+# Copyright (c) 2008 Emir Imamagic
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+use GridMon::Nagios;
+use strict;
+use Getopt::Long;
+
+sub error {
+    my $message = shift;
+    print $message;
+    exit -1;
+}
+
+my $verbose;
+my $help;
+my $dryrun;
+my $hostname = $ARGV[0];
+my $service = $ARGV[1];
+
+Getopt::Long::Configure('bundling');
+if (!GetOptions
+    ("v"   => \$verbose,   "verbose"     => \$verbose,
+    "h"    => \$help,      "help"        => \$help,
+    "H=s"  => \$hostname,  "hostname=s"  => \$hostname,
+    "s=s"  => \$service,   "service=s"   => \$service,
+    "d"    => \$dryrun,    "dryrun"      => \$dryrun)) {
+    exit 1;
+}
+
+if ($help) {
+    print "
+Nagios check runner - runs command for given host and service pair
+
+Syntax:
+  nagios <hostname> <service>
+  nagios -H|--hostname <hostname> -s|--service <service> [-h|--help] [-v|--verbose]
+    
+Options:
+  -H|--hostname STRING
+      Name of the host which contains the service which
+      is being checked.
+      This is a mandatory option.
+  -s|--service STRING
+      Name of the service on defined host which is being
+      checked.
+      This is a mandatory option.
+  -d|--dryrun
+      Command will only be print out, but not executed.
+      Default: not set.
+  -v|--verbose
+      Prints full command which is being executed.
+      Useful for furter modification of the command.
+      Default: not set.
+  -h|--help
+      Prints this message.
+";
+    exit 0;
+}
+
+if (!$hostname) {
+    if ($#ARGV eq 1) {
+        $hostname = $ARGV[0];
+        $service = $ARGV[1];
+    } else {
+        error("Hostname and service must be defined.\n");
+    }
+} elsif (!$service) {
+    if ($#ARGV eq 0) {
+        $service = $ARGV[0];
+    } else {
+        error("Service must be defined.\n");
+    }
+}
+
+# load Nagios data
+my $nagios = GridMon::Nagios->new();
+$nagios->fetchConfHostData(["address"]) or die $nagios->{ERROR};
+$nagios->fetchConfServiceData(["check_command"]) or die $nagios->{ERROR};
+$nagios->filterHosts({host_name=>$hostname}) or die $nagios->{ERROR};
+$nagios->fetchResourceData() or die $nagios->{ERROR};
+
+# parse check_command parameter of service
+my $command = $nagios->prepareServiceCommand($hostname, $service) or die $nagios->{ERROR};
+my $cmdDef;
+my $isNRPE;
+
+# fetch command string 
+$nagios->fetchCommandData($command->{COMMAND});
+if (exists $nagios->{COMMANDS}->{$command->{COMMAND}}) {
+    $cmdDef = $nagios->{COMMANDS}->{$command->{COMMAND}}->{command_line};
+}
+
+if ($cmdDef =~ /^\$USER1\$\/check_nrpe -H \$ARG1\$ -c \$ARG2\$/) {
+    $isNRPE = 1;
+}
+
+# we have small amount of data
+# it is easier to check for any of them
+#
+# start with arguments, they are certainly there
+foreach my $arg (keys %{$command->{ARGS}}) {
+    $cmdDef =~ s/\$$arg\$/$command->{ARGS}->{$arg}/g;
+}
+foreach my $macro (keys %{$command->{MACROS}}) {
+    $cmdDef =~ s/\$$macro\$/"$command->{MACROS}->{$macro}"/g;
+}
+foreach my $res (keys %{$nagios->{RESOURCES}}) {
+    $cmdDef =~ s/\$$res\$/$nagios->{RESOURCES}->{$res}/g;
+}
+
+if ($verbose) {
+    if ($isNRPE) {
+        print "Warning: this command is executed on the NRPE host.
+Full command line can be found on the host $command->{ARGS}->{ARG1}
+in the file /var/lib/nrpe/push_nrpe.d/services.nrpe.cfg
+under the name $command->{ARGS}->{ARG2}\n";
+    } else {
+        print "Executing command:\n";
+        print "su nagios -l -c '$cmdDef'\n";
+    }
+}
+
+if (!$dryrun) {
+    print "Output:\n" if ($verbose);
+    system("su nagios -l -c '$cmdDef'");
+}
+
+exit $?;
+
