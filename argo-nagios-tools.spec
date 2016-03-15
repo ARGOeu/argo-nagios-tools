@@ -1,6 +1,6 @@
 Summary: ARGO tools for Nagios
 Name: argo-nagios-tools
-Version: 1.0.0
+Version: 1.0.1
 Release: 1%{?dist}
 License: APL2
 Group: Network/Monitoring
@@ -70,6 +70,8 @@ fi
 :
 
 %changelog
+* Tue Mar 15 2016 Emir Imamagic <eimamagi@srce.hr> - 1.0.1-1%{?dist}
+- Cleaned up old names in config files
 * Tue Mar 8 2016 Emir Imamagic <eimamagi@srce.hr> - 1.0.0-1%{?dist}
 - Initial version based on voms-htpasswd, voms2htpasswd and 
   grid-monitoring-fm-nagios-local
