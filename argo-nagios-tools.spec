@@ -1,12 +1,13 @@
 Summary: ARGO tools for Nagios
 Name: argo-nagios-tools
-Version: 1.0.2
+Version: 1.1.0
 Release: 1%{?dist}
 License: APL2
 Group: Network/Monitoring
 Source: %{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-build
 BuildArch: noarch
+Requires: perl-libwww-perl > 5.833-2
 
 %description
 ARGO tools for Nagios:
@@ -75,6 +76,9 @@ fi
 :
 
 %changelog
+* Fri Feb 10 2017 Emir Imamagic <eimamagi@srce.hr> - 1.1.0-1%{?dist}
+- Perl does not recognize SSL env variables
+- Cleaned up old code
 * Thu Mar 24 2016 Emir Imamagic <eimamagi@srce.hr> - 1.0.2-1%{?dist}
 - Added gather_healthy_nodes
 * Tue Mar 15 2016 Emir Imamagic <eimamagi@srce.hr> - 1.0.1-1%{?dist}
