@@ -7,6 +7,7 @@ Group: Network/Monitoring
 Source: %{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-build
 BuildArch: noarch
+Requires: perl-libwww-perl > 5.833-2
 
 %description
 ARGO tools for Nagios:
