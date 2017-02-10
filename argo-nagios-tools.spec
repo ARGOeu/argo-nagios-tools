@@ -77,7 +77,7 @@ fi
 
 %changelog
 * Fri Feb 10 2017 Emir Imamagic <eimamagi@srce.hr> - 1.1.0-1%{?dist}
-- ARGO-672 Perl does not recognize SSL env variables
+- Perl does not recognize SSL env variables
 - Cleaned up old code
 * Thu Mar 24 2016 Emir Imamagic <eimamagi@srce.hr> - 1.0.2-1%{?dist}
 - Added gather_healthy_nodes
