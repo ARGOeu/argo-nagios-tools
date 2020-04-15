@@ -90,8 +90,8 @@ if (!$hostname) {
 
 # load Nagios data
 my $nagios = GridMon::Nagios->new();
-$nagios->fetchConfHostData(["address"]) or die $nagios->{ERROR};
-$nagios->fetchConfServiceData(["check_command"]) or die $nagios->{ERROR};
+$nagios->fetchConfHostData() or die $nagios->{ERROR};
+$nagios->fetchConfServiceData() or die $nagios->{ERROR};
 $nagios->filterHosts({host_name=>$hostname}) or die $nagios->{ERROR};
 $nagios->fetchResourceData() or die $nagios->{ERROR};
 
