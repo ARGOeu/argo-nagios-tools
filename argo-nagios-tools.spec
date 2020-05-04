@@ -1,6 +1,6 @@
 Summary: ARGO tools for Nagios
 Name: argo-nagios-tools
-Version: 1.1.0
+Version: 1.2.0
 Release: 1%{?dist}
 License: APL2
 Group: Network/Monitoring
@@ -76,6 +76,8 @@ fi
 :
 
 %changelog
+* Sun May 3 2020 Emir Imamagic <eimamagi@srce.hr> - 1.2.0-1%{?dist}
+- Fix nagios-run-check warnings
 * Fri Feb 10 2017 Emir Imamagic <eimamagi@srce.hr> - 1.1.0-1%{?dist}
 - Perl does not recognize SSL env variables
 - Cleaned up old code
