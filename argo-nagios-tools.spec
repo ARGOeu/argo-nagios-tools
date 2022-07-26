@@ -1,6 +1,6 @@
 Summary: ARGO tools for Nagios
 Name: argo-nagios-tools
-Version: 1.2.0
+Version: 1.3.0
 Release: 1%{?dist}
 License: APL2
 Group: Network/Monitoring
@@ -76,6 +76,8 @@ fi
 :
 
 %changelog
+* Tue Jul 26 2022 Emir Imamagic <eimamagi@srce.hr> - 1.3.0-1%{?dist}
+- argo-voms-htpasswd fails when GOCDB contact has no certdn
 * Sun May 3 2020 Emir Imamagic <eimamagi@srce.hr> - 1.2.0-1%{?dist}
 - Fix nagios-run-check warnings
 * Fri Feb 10 2017 Emir Imamagic <eimamagi@srce.hr> - 1.1.0-1%{?dist}
